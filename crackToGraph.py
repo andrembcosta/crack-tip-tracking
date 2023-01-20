@@ -14,7 +14,7 @@ def testNeighbors(mesh, elemIndexA, elemIndexB):
     else:
         return 0
 
-filename = 'cracks_and_graphs/vtk_data/branch_vtk_data_5.vtm'
+filename = 'vtk_data/branch_vtk_data_13.vtm'
 #only needed in first time step
 data = pv.read(filename)
 data = data[0][0]
@@ -25,16 +25,16 @@ print(numCells)
 #meshConnections = meshAdjacency(filename)
 ##
 #repeat every time step
-damagedCells = getDamagedElements(filename, 0.9)
+damagedCells = getDamagedElements(filename, 0.98)
+numDamagedCells = len(damagedCells)
 print(len(damagedCells))
-graphAdjacency = lil_matrix((numCells,numCells)) #build sparse matrix
-for i in damagedCells:
-    for j in damagedCells:
-        graphAdjacency[i,j] = testNeighbors(data, i, j)
+graphAdjacency = lil_matrix((numDamagedCells,numDamagedCells)) #build sparse matrix
+npos = {}
+for i in range(len(damagedCells)):
+    npos[i]=pos[damagedCells[i]]
+    for j in range(len(damagedCells)):
+        graphAdjacency[i,j] = testNeighbors(data, damagedCells[i], damagedCells[j])
 G = ntx.Graph(graphAdjacency)
 
-ntx.draw(G, with_labels = False, pos=pos)
+ntx.draw(G, with_labels = False, pos=npos, node_size=30)
 plt.show()      
-
-
-
